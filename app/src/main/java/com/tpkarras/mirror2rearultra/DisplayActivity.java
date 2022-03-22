@@ -84,6 +84,8 @@ public class DisplayActivity extends AppCompatActivity {
                   resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent());
                } else {
                   mirroring.set(0);
+                  Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
+                  stopService(foreground);
                   moveTaskToBack (true);
                }
       } else {

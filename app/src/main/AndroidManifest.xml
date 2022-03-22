@@ -20,6 +20,18 @@
                 <action android:name="android.intent.action.CONFIGURATION_CHANGED" />
             </intent-filter>
         </service>
+        <service
+            android:name=".QuickTileService"
+            android:enabled="true"
+            android:exported="true"
+            android:label="Mirror to Rear Screen"
+            android:icon="@drawable/ic_rear2screenultra_icon"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action
+                    android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
         <activity
             android:name=".DisplayActivity"
             android:exported="true"
@@ -38,17 +50,6 @@
                 <action android:name="subscreen.action.intent.SUB_SCREEN_TIME_OFF" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".QuickTileService"
-            android:enabled="true"
-            android:exported="true"
-            android:label="Mirror to Rear Screen"
-            android:icon="@drawable/ic_rear2screenultra_icon"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action
-                    android:name="android.service.quicksettings.action.QS_TILE"/>
-            </intent-filter>></service>
     </application>
 
 </manifest>

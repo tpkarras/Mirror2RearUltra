@@ -5,6 +5,7 @@ import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.os.PowerManager;
