@@ -36,7 +36,7 @@ public class Mirror extends Activity {
                 Surface surface = new Surface(surfaceTexture);
                 DisplayActivity.virtualDisplay.setSurface(surface);
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "StayAwake");
+                @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "StayAwake");
                 wl.acquire();
                 screenRotation.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
                     @Override
