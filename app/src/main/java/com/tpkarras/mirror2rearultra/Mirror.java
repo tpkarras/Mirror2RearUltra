@@ -1,6 +1,7 @@
 package com.tpkarras.mirror2rearultra;
 
 import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
+import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -35,7 +36,7 @@ public class Mirror extends Activity {
                 Surface surface = new Surface(surfaceTexture);
                 DisplayActivity.virtualDisplay.setSurface(surface);
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "StayAwake");
+                @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "StayAwake");
                 wl.acquire();
                 screenRotation.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
                     @Override
@@ -59,10 +60,10 @@ public class Mirror extends Activity {
                         textureView.setTransform(matrix);
                     }
                 });
-                DisplayActivity.mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+                mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
                     @Override
                     public void onPropertyChanged(Observable sender, int propertyId) {
-                        if (DisplayActivity.mirroring.get() == 0) {
+                        if (mirroring.get() == 0) {
                             wl.release();
                             finish();
                         }

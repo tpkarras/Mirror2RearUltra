@@ -1,5 +1,6 @@
 package com.tpkarras.mirror2rearultra;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirrorSwitch;
+import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -30,7 +31,6 @@ public class DisplayActivity extends AppCompatActivity {
    public static VirtualDisplay virtualDisplay;
    public static DisplayManager displayManager;
    public static MediaProjectionManager mediaProjectionManager;
-   public static ObservableInt mirroring = new ObservableInt(0);
    public static boolean isAppInstalled(Context context, String packageName) {
       try {
          context.getPackageManager().getApplicationInfo(packageName, 0);
@@ -70,7 +70,7 @@ public class DisplayActivity extends AppCompatActivity {
                        mirrorSwitch.set(0);
                        Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
                        stopService(foreground);
-                       moveTaskToBack (true);
+                       finish();
                     }
                  }
 
@@ -86,7 +86,7 @@ public class DisplayActivity extends AppCompatActivity {
                   mirroring.set(0);
                   Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
                   stopService(foreground);
-                  moveTaskToBack (true);
+                  finish();
                }
       } else {
          new AlertDialog.Builder(this)
@@ -94,6 +94,7 @@ public class DisplayActivity extends AppCompatActivity {
                  .setPositiveButton("OK", null)
                  .create()
                  .show();
+         finish();
       }
    }
 }
