@@ -43,8 +43,7 @@
         </activity>
         <activity
             android:name=".Mirror"
-            android:exported="true"
-            android:keepScreenOn="true">
+            android:exported="true">
             <intent-filter>
                 <action android:name="subscreen.action.intent.SUB_SCREEN_TIME_ON" />
                 <action android:name="subscreen.action.intent.SUB_SCREEN_TIME_OFF" />

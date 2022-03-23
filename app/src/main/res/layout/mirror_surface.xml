@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mirror_layout"
     android:layout_width="294px"
-    android:layout_height="294px">
+    android:layout_height="294px"
+    android:keepScreenOn="true">
 
     <TextureView
         android:id="@+id/mirror"
