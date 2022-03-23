@@ -1,4 +1,5 @@
 package com.tpkarras.mirror2rearultra;
+import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirrorSwitch;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
 
@@ -51,10 +52,17 @@ public class DisplayActivity extends AppCompatActivity {
                     if (result.getResultCode() != 0) {
                        mirroring.set(1);
                        mediaProjection = mediaProjectionManager.getMediaProjection(result.getResultCode(), result.getData());
-                       virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                               126, 294, 290,
-                               displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-                               null, null, null);
+                       if(screenRotation.get() == 0 || screenRotation.get() == 2) {
+                          virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
+                                  126, 294, 290,
+                                  displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                                  null, null, null);
+                       } else if(screenRotation.get() == 3 || screenRotation.get() == 1) {
+                          virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
+                                  294, 126, 290,
+                                  displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                                  null, null, null);
+                       }
                        DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
                        Display[] displays = displayManager.getDisplays();
                        activityOptions = activityOptions.makeBasic();

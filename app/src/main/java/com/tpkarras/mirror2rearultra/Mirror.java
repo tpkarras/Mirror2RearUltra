@@ -35,13 +35,24 @@ public class Mirror extends Activity {
             public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture, int i, int i1) {
                 Surface surface = new Surface(surfaceTexture);
                 DisplayActivity.virtualDisplay.setSurface(surface);
+                if (screenRotation.get() == 0) {
+                    matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                } else if (screenRotation.get() == 3) {
+                    matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    matrix.postTranslate(-167, 0);
+                } else if (screenRotation.get() == 1) {
+                    matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                } else if (screenRotation.get() == 2) {
+                    matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    matrix.postTranslate(-167, 0);
+                }
+                textureView.setTransform(matrix);
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                 @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "StayAwake");
                 wl.acquire();
                 screenRotation.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
                     @Override
                     public void onPropertyChanged(Observable observable, int i) {
-                        Log.d("Orientation", String.valueOf(screenRotation.get()));
                         if (screenRotation.get() == 0) {
                             DisplayActivity.virtualDisplay.resize(126, 294, 290);
                             matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
