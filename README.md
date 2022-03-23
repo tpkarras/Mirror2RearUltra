@@ -10,7 +10,6 @@ Works on Android 11+ with any MIUI version after 12.
 Press the quick tile to enable rear screen mirroring. Home screen shortcuts must be enabled in permissions for quick tile to show. Make sure MIUI power saver is off so that the app doesn't get killed.
 
 # Bugs
-- Both screens will unexpectedly turn off due to proximity sensor issues.
 - Sometimes the confirmation dialog will appear on the rear screen.
 - You may have to wake up the screen by double tapping on it.
 - Double tapping will increase brightness.
