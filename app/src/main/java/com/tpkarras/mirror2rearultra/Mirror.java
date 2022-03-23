@@ -23,8 +23,7 @@ public class Mirror extends Activity {
 
     private Matrix matrix;
     private TextureView textureView;
-    private static final int REQUEST_MEDIA_PROJECTION = 1;
-
+    
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Matrix matrix = new Matrix();
@@ -47,9 +46,6 @@ public class Mirror extends Activity {
                     matrix.postTranslate(-167, 0);
                 }
                 textureView.setTransform(matrix);
-                PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "StayAwake");
-                wl.acquire();
                 screenRotation.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
                     @Override
                     public void onPropertyChanged(Observable observable, int i) {
@@ -75,7 +71,6 @@ public class Mirror extends Activity {
                     @Override
                     public void onPropertyChanged(Observable sender, int propertyId) {
                         if (mirroring.get() == 0) {
-                            wl.release();
                             finish();
                         }
                     }

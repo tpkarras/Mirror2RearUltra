@@ -35,7 +35,8 @@
         <activity
             android:name=".DisplayActivity"
             android:exported="true"
-            android:theme="@style/Theme.Mirror2RearUltra">
+            android:theme="@style/Theme.Mirror2RearUltra"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -43,11 +44,8 @@
         </activity>
         <activity
             android:name=".Mirror"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="subscreen.action.intent.SUB_SCREEN_TIME_ON" />
-                <action android:name="subscreen.action.intent.SUB_SCREEN_TIME_OFF" />
-            </intent-filter>
+            android:exported="true"
+            android:excludeFromRecents="true">
         </activity>
     </application>
 
