@@ -45,7 +45,11 @@
         <activity
             android:name=".Mirror"
             android:exported="true"
-            android:excludeFromRecents="true">
+            android:excludeFromRecents="true"
+            android:turnScreenOn="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SUB_DISPLAY_SCREEN_ON"/>
+            </intent-filter>
         </activity>
     </application>
 

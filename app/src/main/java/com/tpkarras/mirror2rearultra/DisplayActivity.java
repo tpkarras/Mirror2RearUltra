@@ -102,6 +102,7 @@ public class DisplayActivity extends AppCompatActivity {
                  .setPositiveButton("OK", null)
                  .create()
                  .show();
+         mirrorSwitch.set(0);
          finish();
       }
    }

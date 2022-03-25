@@ -3,14 +3,9 @@ package com.tpkarras.mirror2rearultra;
 import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
-import android.os.PowerManager;
-import android.util.Log;
 import android.view.Surface;
 
 import android.os.Bundle;
@@ -19,11 +14,41 @@ import android.view.TextureView;
 import androidx.annotation.NonNull;
 import androidx.databinding.Observable;
 
+import java.lang.reflect.Constructor;
+
+import dalvik.system.DexClassLoader;
+
 public class Mirror extends Activity {
 
     private Matrix matrix;
     private TextureView textureView;
-    
+
+    public void subscreenDisplayTrigger(boolean trigger) {
+        if (trigger == true) {
+            try {
+                DexClassLoader dexClassLoader = new DexClassLoader("/system/app/MiSubScreenUi/MiSubScreenUi.apk", getCodeCacheDir().getAbsolutePath(), null, ClassLoader.getSystemClassLoader());
+                Class<Object> subscreenManager = (Class<Object>) dexClassLoader.loadClass("com.xiaomi.misubscreenui.manager.DeviceManager");
+                Constructor[] subscreenct = subscreenManager.getDeclaredConstructors();
+                Object subscreenInstance = subscreenct[0].newInstance(getApplicationContext());
+                subscreenManager.getMethod("wakeupScreen").invoke(subscreenInstance);
+                subscreenManager.getMethod("mo7860f").invoke(subscreenInstance);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (trigger == false){
+            try {
+                DexClassLoader dexClassLoader = new DexClassLoader("/system/app/MiSubScreenUi/MiSubScreenUi.apk", getCodeCacheDir().getAbsolutePath(), null, ClassLoader.getSystemClassLoader());
+                Class<Object> subscreenManager = (Class<Object>) dexClassLoader.loadClass("com.xiaomi.misubscreenui.manager.DeviceManager");
+                Constructor[] subscreenct = subscreenManager.getDeclaredConstructors();
+                Object subscreenInstance = subscreenct[0].newInstance(getApplicationContext());
+                subscreenManager.getMethod( "mo7857c").invoke(subscreenInstance);
+                subscreenManager.getMethod("letSubScreenOff").invoke(subscreenInstance);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Matrix matrix = new Matrix();
@@ -65,12 +90,14 @@ public class Mirror extends Activity {
                             matrix.postTranslate(-167, 0);
                         }
                         textureView.setTransform(matrix);
+                        subscreenDisplayTrigger(true);
                     }
                 });
                 mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
                     @Override
                     public void onPropertyChanged(Observable sender, int propertyId) {
                         if (mirroring.get() == 0) {
+                            subscreenDisplayTrigger(false);
                             finish();
                         }
                     }
@@ -93,5 +120,14 @@ public class Mirror extends Activity {
             }
         };
         textureView.setSurfaceTextureListener(surfaceTextureListener);
+    }
+
+    public void onPause() {
+        super.onPause();
+    }
+
+    public void onResume() {
+        super.onResume();
+        subscreenDisplayTrigger(true);
     }
 }
