@@ -10,6 +10,7 @@ import androidx.databinding.ObservableInt;
 public class QuickTileService extends TileService {
     public static ObservableInt mirrorSwitch = new ObservableInt(0);
     public static ObservableInt mirroring = new ObservableInt(0);
+    public static ObservableInt rearDisplayId = new ObservableInt(0);
 
     @Override
     public void onClick() {

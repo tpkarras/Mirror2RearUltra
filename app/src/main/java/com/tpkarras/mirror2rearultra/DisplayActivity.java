@@ -2,6 +2,7 @@ package com.tpkarras.mirror2rearultra;
 import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirrorSwitch;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
+import static com.tpkarras.mirror2rearultra.QuickTileService.rearDisplayId;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -13,6 +14,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.util.Log;
 import android.view.Display;
 
 import androidx.activity.result.ActivityResult;
@@ -23,13 +25,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.ObservableInt;
 
 import android.os.Bundle;
+import android.view.Window;
 
 public class DisplayActivity extends AppCompatActivity {
 
    public static MediaProjection mediaProjection;
    private ActivityOptions activityOptions;
    private Activity activity;
-   public static VirtualDisplay virtualDisplay;
+   public static Context rearDisplay;
    public static DisplayManager displayManager;
    public static MediaProjectionManager mediaProjectionManager;
    public static boolean isAppInstalled(Context context, String packageName) {
@@ -52,28 +55,19 @@ public class DisplayActivity extends AppCompatActivity {
                     if (result.getResultCode() != 0) {
                        mirroring.set(1);
                        mediaProjection = mediaProjectionManager.getMediaProjection(result.getResultCode(), result.getData());
-                       if(screenRotation.get() == 0 || screenRotation.get() == 2) {
-                          virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                                  126, 294, 290,
-                                  displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-                                  null, null, null);
-                       } else if(screenRotation.get() == 3 || screenRotation.get() == 1) {
-                          virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                                  294, 126, 290,
-                                  displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-                                  null, null, null);
-                       }
                        DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
                        Display[] displays = displayManager.getDisplays();
+                       rearDisplayId.set(displays[1].getDisplayId());
+                       rearDisplay = createDisplayContext(displayManager.getDisplay(rearDisplayId.get()));
                        activityOptions = activityOptions.makeBasic();
-                       activityOptions.setLaunchDisplayId(displays[1].getDisplayId());
-                       Intent intent = new Intent(getApplicationContext(), Mirror.class);
+                       activityOptions.setLaunchDisplayId(rearDisplayId.get());
+                       Intent intent = new Intent(rearDisplay, Mirror.class);
                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                        startActivity(
                                intent,
                                activityOptions.toBundle()
                        );
-                       moveTaskToBack (true);
+                       finish();
                     } else {
                        mirrorSwitch.set(0);
                        Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
