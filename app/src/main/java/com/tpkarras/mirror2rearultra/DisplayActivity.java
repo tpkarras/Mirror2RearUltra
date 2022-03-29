@@ -1,5 +1,5 @@
 package com.tpkarras.mirror2rearultra;
-import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
+
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirrorSwitch;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
 import static com.tpkarras.mirror2rearultra.QuickTileService.rearDisplayId;
@@ -11,10 +11,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
-import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.Display;
 
 import androidx.activity.result.ActivityResult;
@@ -22,10 +21,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.ObservableInt;
-
-import android.os.Bundle;
-import android.view.Window;
 
 public class DisplayActivity extends AppCompatActivity {
 
@@ -79,17 +74,17 @@ public class DisplayActivity extends AppCompatActivity {
               });
       if (isAppInstalled(this, "com.xiaomi.misubscreenui")) {
          super.onCreate(savedInstanceState);
-               if (mirrorSwitch.get() == 1) {
-                  Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
-                  startService(foreground);
-                  mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-                  resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent());
-               } else {
-                  mirroring.set(0);
-                  Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
-                  stopService(foreground);
-                  finish();
-               }
+            if (mirrorSwitch.get() == 1) {
+               Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
+               startService(foreground);
+               mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+               resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent());
+            } else {
+               mirroring.set(0);
+               Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
+               stopService(foreground);
+               finish();
+            }
       } else {
          new AlertDialog.Builder(this)
                  .setMessage("The device you're using is not a Mi 11 Ultra.")

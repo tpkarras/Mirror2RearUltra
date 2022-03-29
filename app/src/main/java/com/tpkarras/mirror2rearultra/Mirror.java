@@ -6,42 +6,29 @@ import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
 import static com.tpkarras.mirror2rearultra.QuickTileService.rearDisplayId;
 
-import android.content.ContentProvider;
-import android.os.Handler;
-import android.os.Looper;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
-import android.net.Uri;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.Display;
-import android.view.Surface;
-
 import android.os.Bundle;
+import android.provider.Settings;
+import android.view.Surface;
 import android.view.TextureView;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.Observable;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import dalvik.system.DexClassLoader;
 
@@ -50,7 +37,7 @@ public class Mirror extends Activity {
     private Matrix matrix;
     private TextureView textureView;
     private VirtualDisplay virtualDisplay;
-    private Window window;
+    private long timeout;
 
     public void subscreenDisplayTrigger(boolean trigger) {
             try {
@@ -84,7 +71,13 @@ public class Mirror extends Activity {
     }
 
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+            timeout = Settings.System.getLong(getContentResolver(), "subscreen_display_time");
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
         super.onCreate(savedInstanceState);
+        Window window = getWindow();
         Matrix matrix = new Matrix();
         if(screenRotation.get() == 0 || screenRotation.get() == 2) {
             virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
@@ -97,12 +90,11 @@ public class Mirror extends Activity {
                     displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
                     null, null, null);
         }
-        window = this.getWindow();
-        //WindowManager.LayoutParams layoutParams = window.getAttributes();
-        //layoutParams.buttonBrightness = 1f;
-        //window.setAttributes(layoutParams);
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION;
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         window.setContentView(R.layout.mirror_surface);
+        window.setAttributes(layoutParams);
         textureView = findViewById(R.id.mirror);
         TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
             @Override
@@ -143,15 +135,6 @@ public class Mirror extends Activity {
                         subscreenDisplayTrigger(true);
                     }
                 });
-                mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
-                    @Override
-                    public void onPropertyChanged(Observable sender, int propertyId) {
-                        if (mirroring.get() == 0) {
-                            subscreenDisplayTrigger(false);
-                            finish();
-                        }
-                    }
-                });
             }
 
             @Override
@@ -170,14 +153,57 @@ public class Mirror extends Activity {
             }
         };
         textureView.setSurfaceTextureListener(surfaceTextureListener);
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                StringBuilder string = new StringBuilder("input -d ");
+                string.append(rearDisplayId.get());
+                string.append(" tap 0 0");
+                    Runtime.getRuntime().exec(string.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, timeout / 3);
+        mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+            @Override
+            public void onPropertyChanged(Observable sender, int propertyId) {
+                if (mirroring.get() == 0) {
+                    subscreenDisplayTrigger(false);
+                    finish();
+                }
+            }
+        });
     }
 
     public void onPause() {
         super.onPause();
+
     }
 
     public void onResume() {
         super.onResume();
         subscreenDisplayTrigger(true);
+        try {
+            timeout = Settings.System.getLong(getContentResolver(), "subscreen_display_time");
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                StringBuilder string = new StringBuilder("input -d ");
+                string.append(rearDisplayId.get());
+                string.append(" tap 0 0");
+                    Runtime.getRuntime().exec(string.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, timeout / 3);
     }
 }
