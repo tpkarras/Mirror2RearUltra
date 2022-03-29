@@ -38,6 +38,7 @@ public class Mirror extends Activity {
     private TextureView textureView;
     private VirtualDisplay virtualDisplay;
     private long timeout;
+    private Timer t;
 
     public void subscreenDisplayTrigger(boolean trigger) {
             try {
@@ -77,6 +78,7 @@ public class Mirror extends Activity {
             e.printStackTrace();
         }
         super.onCreate(savedInstanceState);
+        Timer t = new Timer();
         Window window = getWindow();
         Matrix matrix = new Matrix();
         if(screenRotation.get() == 0 || screenRotation.get() == 2) {
@@ -153,14 +155,13 @@ public class Mirror extends Activity {
             }
         };
         textureView.setSurfaceTextureListener(surfaceTextureListener);
-        Timer t = new Timer();
         t.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
-                StringBuilder string = new StringBuilder("input -d ");
-                string.append(rearDisplayId.get());
-                string.append(" tap 0 0");
+                    StringBuilder string = new StringBuilder("input -d ");
+                    string.append(rearDisplayId.get());
+                    string.append(" tap 0 0");
                     Runtime.getRuntime().exec(string.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -186,24 +187,5 @@ public class Mirror extends Activity {
     public void onResume() {
         super.onResume();
         subscreenDisplayTrigger(true);
-        try {
-            timeout = Settings.System.getLong(getContentResolver(), "subscreen_display_time");
-        } catch (Settings.SettingNotFoundException e) {
-            e.printStackTrace();
-        }
-        Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                StringBuilder string = new StringBuilder("input -d ");
-                string.append(rearDisplayId.get());
-                string.append(" tap 0 0");
-                    Runtime.getRuntime().exec(string.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 0, timeout / 3);
     }
 }
