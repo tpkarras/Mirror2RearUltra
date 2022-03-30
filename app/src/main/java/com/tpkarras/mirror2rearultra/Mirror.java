@@ -39,6 +39,7 @@ public class Mirror extends Activity {
     private VirtualDisplay virtualDisplay;
     private long timeout;
     private Timer t;
+    private String inputShell = new StringBuilder("input -d ").append(rearDisplayId.get()).append(" tap 0 0").toString();
 
     public void subscreenDisplayTrigger(boolean trigger) {
             try {
@@ -159,10 +160,7 @@ public class Mirror extends Activity {
             @Override
             public void run() {
                 try {
-                    StringBuilder string = new StringBuilder("input -d ");
-                    string.append(rearDisplayId.get());
-                    string.append(" tap 0 0");
-                    Runtime.getRuntime().exec(string.toString());
+                    Runtime.getRuntime().exec(inputShell);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -172,6 +170,7 @@ public class Mirror extends Activity {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
                 if (mirroring.get() == 0) {
+                    t.cancel();
                     subscreenDisplayTrigger(false);
                     finish();
                 }
