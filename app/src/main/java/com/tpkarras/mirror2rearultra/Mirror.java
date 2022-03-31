@@ -106,20 +106,23 @@ public class Mirror extends Activity {
                 virtualDisplay.setSurface(surface);
                 if (screenRotation.get() == 0) {
                     matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    textureView.setScaleY(1);
                     textureView.setScaleX(-1);
-                    matrix.postTranslate(167, 0);
+                    matrix.postTranslate(168, 0);
                 } else if (screenRotation.get() == 3) {
                     matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
                     textureView.setScaleX(1);
                     textureView.setScaleY(-1);
-                    matrix.postTranslate(-167, 0);
+                    matrix.postTranslate(-168, 0);
                 } else if (screenRotation.get() == 1) {
                     matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    textureView.setScaleY(-1);
                     textureView.setScaleX(1);
                 } else if (screenRotation.get() == 2) {
                     matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    textureView.setScaleY(-1);
                     textureView.setScaleX(1);
-                    matrix.postTranslate(-167, 0);
+                    matrix.postTranslate(-168, 0);
                 }
                 textureView.setTransform(matrix);
                 screenRotation.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
@@ -128,25 +131,26 @@ public class Mirror extends Activity {
                         if (screenRotation.get() == 0) {
                             virtualDisplay.resize(126, 294, 290);
                             matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleY(1);
                             textureView.setScaleX(-1);
-                            matrix.postTranslate(167, 0);
+                            matrix.postTranslate(168, 0);
                         } else if (screenRotation.get() == 3) {
                             virtualDisplay.resize(294, 126, 290);
-                            matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                            textureView.setScaleX(-1);
-                            textureView.setScaleY(1);
-                            matrix.postTranslate(167, 0);
-                        } else if (screenRotation.get() == 1) {
-                            virtualDisplay.resize(294, 126, 290);
                             matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                            textureView.setScaleX(-1);
-                            textureView.setScaleY(1);
-                        } else if (screenRotation.get() == 2) {
-                            virtualDisplay.resize(126, 294, 290);
-                            matrix.setRotate(180, textureView.getWidth() / 2, textureView.getHeight() / 2);
                             textureView.setScaleX(1);
                             textureView.setScaleY(-1);
-                            matrix.postTranslate(-167, 0);
+                            matrix.postTranslate(-168, 0);
+                        } else if (screenRotation.get() == 1) {
+                            virtualDisplay.resize(294, 126, 290);
+                            matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleY(-1);
+                            textureView.setScaleX(1);
+                        } else if (screenRotation.get() == 2) {
+                            virtualDisplay.resize(126, 294, 290);
+                            matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleY(-1);
+                            textureView.setScaleX(1);
+                            matrix.postTranslate(-168, 0);
                         }
                         textureView.setTransform(matrix);
                         subscreenDisplayTrigger(true);
@@ -179,7 +183,7 @@ public class Mirror extends Activity {
                     e.printStackTrace();
                 }
             }
-        }, 0, timeout / 3);
+        }, 0, timeout / 4);
         mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
