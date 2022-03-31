@@ -172,7 +172,8 @@ public class Mirror extends Activity {
                 if (mirroring.get() == 0) {
                     t.cancel();
                     subscreenDisplayTrigger(false);
-                    finish();
+                    finishAffinity();
+                    System.exit(0);
                 }
             }
         });
