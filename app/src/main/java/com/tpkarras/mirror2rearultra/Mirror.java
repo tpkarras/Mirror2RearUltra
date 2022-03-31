@@ -17,7 +17,6 @@ import android.hardware.SensorManager;
 import android.hardware.display.VirtualDisplay;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.Window;
