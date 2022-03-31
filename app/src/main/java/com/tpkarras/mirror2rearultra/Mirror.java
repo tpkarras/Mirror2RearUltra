@@ -17,6 +17,7 @@ import android.hardware.SensorManager;
 import android.hardware.display.VirtualDisplay;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.Window;
@@ -106,18 +107,22 @@ public class Mirror extends Activity {
                 virtualDisplay.setSurface(surface);
                 if (screenRotation.get() == 0) {
                     matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    Log.d("Orientation", "1");
                     textureView.setScaleX(-1);
                     matrix.postTranslate(167, 0);
                 } else if (screenRotation.get() == 3) {
                     matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    Log.d("Orientation", "2");
                     textureView.setScaleX(-1);
                     textureView.setScaleY(1);
                     matrix.postTranslate(167, 0);
                 } else if (screenRotation.get() == 1) {
                     matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    Log.d("Orientation", "3");
                     textureView.setScaleY(1);
                 } else if (screenRotation.get() == 2) {
                     matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    Log.d("Orientation", "4");
                     textureView.setScaleX(1);
                     textureView.setScaleY(-1);
                     matrix.postTranslate(-167, 0);
@@ -140,6 +145,7 @@ public class Mirror extends Activity {
                         } else if (screenRotation.get() == 1) {
                             virtualDisplay.resize(294, 126, 290);
                             matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleX(-1);
                             textureView.setScaleY(1);
                         } else if (screenRotation.get() == 2) {
                             virtualDisplay.resize(126, 294, 290);
