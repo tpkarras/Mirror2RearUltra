@@ -85,12 +85,12 @@ public class Mirror extends Activity {
         if(screenRotation.get() == 0 || screenRotation.get() == 2) {
             virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
                     126, 294, 290,
-                    displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                    displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                     null, null, null);
         } else if(screenRotation.get() == 3 || screenRotation.get() == 1) {
             virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
                     294, 126, 290,
-                    displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR | displayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                    displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                     null, null, null);
         }
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
@@ -106,13 +106,20 @@ public class Mirror extends Activity {
                 virtualDisplay.setSurface(surface);
                 if (screenRotation.get() == 0) {
                     matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    textureView.setScaleX(-1);
+                    matrix.postTranslate(167, 0);
                 } else if (screenRotation.get() == 3) {
                     matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                    matrix.postTranslate(-167, 0);
+                    textureView.setScaleX(-1);
+                    textureView.setScaleY(1);
+                    matrix.postTranslate(167, 0);
                 } else if (screenRotation.get() == 1) {
                     matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    textureView.setScaleY(1);
                 } else if (screenRotation.get() == 2) {
                     matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                    textureView.setScaleX(1);
+                    textureView.setScaleY(-1);
                     matrix.postTranslate(-167, 0);
                 }
                 textureView.setTransform(matrix);
@@ -122,16 +129,23 @@ public class Mirror extends Activity {
                         if (screenRotation.get() == 0) {
                             virtualDisplay.resize(126, 294, 290);
                             matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleX(-1);
+                            matrix.postTranslate(167, 0);
                         } else if (screenRotation.get() == 3) {
                             virtualDisplay.resize(294, 126, 290);
-                            matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                            matrix.postTranslate(-167, 0);
+                            matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleX(-1);
+                            textureView.setScaleY(1);
+                            matrix.postTranslate(167, 0);
                         } else if (screenRotation.get() == 1) {
                             virtualDisplay.resize(294, 126, 290);
-                            matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleY(1);
                         } else if (screenRotation.get() == 2) {
                             virtualDisplay.resize(126, 294, 290);
-                            matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            matrix.setRotate(180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                            textureView.setScaleX(1);
+                            textureView.setScaleY(-1);
                             matrix.postTranslate(-167, 0);
                         }
                         textureView.setTransform(matrix);
