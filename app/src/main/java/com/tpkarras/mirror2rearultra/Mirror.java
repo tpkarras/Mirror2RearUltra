@@ -119,7 +119,6 @@ public class Mirror extends Activity {
                 } else if (screenRotation.get() == 2) {
                     matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
                     textureView.setScaleX(1);
-                    textureView.setScaleY(-1);
                     matrix.postTranslate(-167, 0);
                 }
                 textureView.setTransform(matrix);
