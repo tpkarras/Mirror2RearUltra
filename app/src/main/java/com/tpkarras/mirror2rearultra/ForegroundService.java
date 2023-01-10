@@ -6,12 +6,8 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.SensorManager;
-import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.IBinder;
-import android.view.Display;
-import android.view.OrientationEventListener;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -19,11 +15,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableInt;
 
-import com.tpkarras.mirror2rearultra.R;
-
 public class ForegroundService extends Service {
 
-    private OrientationEventListener orientationEventListener;
     private static final int ID_SERVICE = 101;
 
     @Override
@@ -53,18 +46,6 @@ public class ForegroundService extends Service {
                 .build();
 
         startForeground(ID_SERVICE, notification);
-        DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
-        Display[] displays = displayManager.getDisplays();
-        orientationEventListener = new OrientationEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_NORMAL) {
-            @Override
-            public void onOrientationChanged(int i) {
-                final int rotation = displayManager.getDisplay(displays[0].getDisplayId()).getRotation();
-                if(screenRotation.get() != rotation){
-                screenRotation.set(rotation);
-            }
-            }
-        };
-        orientationEventListener.enable();
     }
 
     public static ObservableBoolean isScreenPortrait = new ObservableBoolean(true);

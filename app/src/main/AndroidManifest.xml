@@ -15,7 +15,8 @@
             android:name=".ForegroundService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="mediaProjection" >
+            android:foregroundServiceType="mediaProjection"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.CONFIGURATION_CHANGED" />
             </intent-filter>
@@ -25,7 +26,7 @@
             android:enabled="true"
             android:exported="false"
             android:icon="@drawable/ic_rear2screenultra_icon"
-            android:label="Mirror to Rear Screen"
+            android:label="@string/quicktile"
 
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" >
             <intent-filter>
@@ -38,7 +39,7 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:resizeableActivity="false"
-            android:theme="@style/Theme.Mirror2RearUltra" >
+            android:theme="@style/Theme.Mirror2RearUltra">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

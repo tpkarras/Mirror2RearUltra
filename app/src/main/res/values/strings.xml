@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Mirror2RearUltra</string>
     <string name="incompatible">The device you\'re using is not a Mi 11 Ultra.</string>
+    <string name="quicktile">Mirror to Rear Screen</string>
 </resources>
