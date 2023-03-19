@@ -15,8 +15,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.display.VirtualDisplay;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Parcel;
+import android.os.RemoteException;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.OrientationEventListener;
 import android.view.Surface;
@@ -28,11 +33,9 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.databinding.Observable;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.lang.reflect.Method;
 
 import dalvik.system.DexClassLoader;
 
@@ -40,33 +43,84 @@ public class Mirror extends Activity {
     public Class<Object> subscreenManager;
     public Constructor[] subscreenct;
     public Object subscreenInstance;
+    public Context subscreenContext;
     public DexClassLoader dexClassLoader;
+    public Class<Object> displayManagerInternal;
+    public Constructor[] displayManagerct;
+    public Object displayManagerInstance;
     private RelativeLayout.LayoutParams lp1;
     private Matrix matrix;
     private TextureView textureView;
     private VirtualDisplay virtualDisplay;
     private long timeout;
-    private Timer t;
+    private static int subscreenSwitch;
+    private static Binder sBinder;
     private String inputShell = new StringBuilder("input -d ").append(rearDisplayId.get()).append(" tap 0 0").toString();
     private OrientationEventListener orientationEventListener;
 
-    protected void onCreate(Bundle savedInstanceState) {
+    public static void rearScreenSwitch(boolean z){
+        Parcel parcel = Parcel.obtain();
+        Parcel parcel2 = Parcel.obtain();
+        parcel.writeInterfaceToken("android.os.IPowerManager");
+        int code;
+        if(z) {
+            code = 16777210;
+            Binder binder = new Binder();
+            sBinder = binder;
+            parcel.writeStrongBinder(binder);
+            parcel.writeLong(SystemClock.uptimeMillis());
+            parcel.writeInt(1);
+            parcel.writeString("CAMERA_CALL");
+        } else {
+            if(subscreenSwitch == 1) {
+                code = 16777211;
+                parcel.writeLong(SystemClock.uptimeMillis());
+                parcel.writeString("CAMERA_CALL");
+            } else {
+                code = 16777208;
+                if (sBinder != null) {
+                    parcel.writeStrongBinder(sBinder);
+                }
+                parcel.writeInt(1);
+            }
+        }
+        try {
+            Method serviceMethod = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
+            IBinder serviceBinder = (IBinder) serviceMethod.invoke(null, "power");
+            serviceBinder.transact(code, parcel, parcel2, 1);
+        } catch (RemoteException | ClassNotFoundException | NoSuchMethodException e) {
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } finally {
+            parcel.recycle();
+            parcel2.recycle();
+        }
+    }
+
+    protected void onCreate(Bundle savedInstanceState){
         orientationEventListener = new OrientationEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
             public void onOrientationChanged(int i) {
-                if(Math.round((i + 10) / 90) == Surface.ROTATION_90) {
-                    screenRotation.set(3);
-                } else if(Math.round((i + 10) / 90) == Surface.ROTATION_180) {
-                    screenRotation.set(2);
-                } else if(Math.round((i + 10) / 90) == Surface.ROTATION_270) {
-                    screenRotation.set(1);
-                } else if(Math.round((i + 10) / 90) == Surface.ROTATION_0 || Math.round((i + 10) / 90) == 4) {
-                    screenRotation.set(Surface.ROTATION_0);
+                try {
+                    if(Math.round((i + 10) / 90) == Surface.ROTATION_90 && Settings.System.getInt(getContentResolver(), "user_rotation") == Surface.ROTATION_90){
+                        screenRotation.set(3);
+                    } else if(Math.round((i + 10) / 90) == Surface.ROTATION_180 && Settings.System.getInt(getContentResolver(), "user_rotation") == Surface.ROTATION_180) {
+                        screenRotation.set(2);
+                    } else if(Math.round((i + 10) / 90) == Surface.ROTATION_270 && Settings.System.getInt(getContentResolver(), "user_rotation") == Surface.ROTATION_270) {
+                        screenRotation.set(1);
+                    } else if(Math.round((i + 10) / 90) == Surface.ROTATION_0 || Math.round((i + 10) / 90) == 4) {
+                        screenRotation.set(Surface.ROTATION_0);
+                    }
+                } catch (Settings.SettingNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         };
         try {
             timeout = Settings.System.getLong(getContentResolver(), "subscreen_display_time");
+            subscreenSwitch = Settings.System.getInt(getContentResolver(), "subscreen_switch");
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
         }
@@ -94,15 +148,8 @@ public class Mirror extends Activity {
         SensorEventListener sensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
-                try {
-                    subscreenManager.getMethod("wakeupScreen").invoke(subscreenInstance);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
+                rearScreenSwitch(true);
+                //subscreenManager.getMethod("wakeupScreen").invoke(subscreenInstance);
             }
 
             @Override
@@ -111,7 +158,6 @@ public class Mirror extends Activity {
             }
         };
             sensorManager.registerListener(sensorEventListener, screenDown, 0);
-        Timer t = new Timer();
         Window window = getWindow();
         Matrix matrix = new Matrix();
         if (Build.VERSION.SDK_INT < 33) {
@@ -210,7 +256,7 @@ public class Mirror extends Activity {
                             matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
                             textureView.setScaleY(-1);
                             textureView.setScaleX(1);
-                            if(Build.VERSION.SDK_INT == 33) {
+                            if(Build.VERSION.SDK_INT >= 33) {
                                 matrix.postTranslate(-84, 0);
                             }
                         } else if (screenRotation.get() == 2) {
@@ -247,34 +293,16 @@ public class Mirror extends Activity {
             }
         };
         textureView.setSurfaceTextureListener(surfaceTextureListener);
-        try {
-            subscreenManager.getMethod("wakeupScreen").invoke(subscreenInstance);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    Runtime.getRuntime().exec(inputShell);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 0, timeout / 4);
+        rearScreenSwitch(true);
         orientationEventListener.enable();
         mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
                 if (mirroring.get() == 0) {
-                    t.cancel();
                     sensorManager.unregisterListener(sensorEventListener);
                     orientationEventListener.disable();
-                    finish();
+                    rearScreenSwitch(false);
+                    finishAffinity();
                     System.exit(0);
                 }
             }
@@ -288,14 +316,6 @@ public class Mirror extends Activity {
 
     public void onResume() {
         super.onResume();
-        try {
-            subscreenManager.getMethod("wakeupScreen").invoke(subscreenInstance);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
+        rearScreenSwitch(true);
     }
 }
