@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">Пристрій, яким ви користуєтеся, не є Mi 11 Ultra.</string>
+    <string name="quicktile">Дзеркало до заднього екрана</string>
+</resources>

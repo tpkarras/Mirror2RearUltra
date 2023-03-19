@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">Enheten du bruker er ikke en Mi 11 Ultra.</string>
+    <string name="quicktile">Speil til bakskjerm</string>
+</resources>

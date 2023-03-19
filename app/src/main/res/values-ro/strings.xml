@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">Dispozitivul pe care îl utilizați nu este un Mi 11 Ultra.</string>
+    <string name="quicktile">Oglindă pe ecranul din spate</string>
+</resources>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">Het apparaat dat je gebruikt is geen Mi 11 Ultra.</string>
+    <string name="quicktile">Spiegel naar achterscherm</string>
+</resources>

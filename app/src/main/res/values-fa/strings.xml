@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">دستگاهی که استفاده می‌کنید Mi 11 Ultra نیست.</string>
+    <string name="quicktile">آینه به صفحه عقب</string>
+</resources>

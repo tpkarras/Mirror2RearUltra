@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">El dispositivo que estás usando no es un Mi 11 Ultra.</string>
+    <string name="quicktile">Espejo a luneta trasera</string>
+</resources>

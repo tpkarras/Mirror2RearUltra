@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">Teie kasutatav seade ei ole Mi 11 Ultra.</string>
+    <string name="quicktile">Peegel tagaekraanile</string>
+</resources>

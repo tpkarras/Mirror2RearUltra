@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">आप जिस डिवाइस का इस्तेमाल कर रहे हैं, वह Mi 11 Ultra नहीं है।</string>
+    <string name="quicktile">मिरर टू रियर स्क्रीन</string>
+</resources>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">您使用的設備不是小米 11 至尊紀念版。</string>
+    <string name="quicktile">鏡子到後屏幕</string>
+</resources>

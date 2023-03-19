@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">الجهاز الذي تستخدمه ليس Mi 11 Ultra.</string>
+    <string name="quicktile">مرآة على الشاشة الخلفية</string>
+</resources>

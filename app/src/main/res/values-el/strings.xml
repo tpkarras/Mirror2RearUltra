@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mirror2RearUltra</string>
+    <string name="incompatible">Η συσκευή που χρησιμοποιείτε δεν είναι Mi 11 Ultra.</string>
+    <string name="quicktile">Καθρέφτης στην πίσω οθόνη</string>
+</resources>
