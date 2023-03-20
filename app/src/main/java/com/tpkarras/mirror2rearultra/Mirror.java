@@ -301,6 +301,7 @@ public class Mirror extends Activity {
                 if (mirroring.get() == 0) {
                     sensorManager.unregisterListener(sensorEventListener);
                     orientationEventListener.disable();
+                    virtualDisplay.release();
                     rearScreenSwitch(false);
                     finishAffinity();
                     System.exit(0);
