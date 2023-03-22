@@ -1,18 +1,21 @@
 package com.tpkarras.mirror2rearultra;
 
+import static com.tpkarras.mirror2rearultra.DisplayActivity.mediaProjectionManager;
+import static com.tpkarras.mirror2rearultra.DisplayActivity.resultLauncher;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
-import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableInt;
 
 public class ForegroundService extends Service {
@@ -46,16 +49,15 @@ public class ForegroundService extends Service {
                 .build();
 
         startForeground(ID_SERVICE, notification);
+        mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent());
     }
-
-    public static ObservableBoolean isScreenPortrait = new ObservableBoolean(true);
 
     @RequiresApi(Build.VERSION_CODES.O)
     private String createNotificationChannel(NotificationManager notificationManager){
         String channelId = "my_service_channelid";
         String channelName = "My Foreground Service";
         NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
-        // omitted the LED color
         channel.setImportance(NotificationManager.IMPORTANCE_NONE);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         notificationManager.createNotificationChannel(channel);

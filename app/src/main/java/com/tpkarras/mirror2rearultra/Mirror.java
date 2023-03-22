@@ -4,7 +4,6 @@ import static com.tpkarras.mirror2rearultra.DisplayActivity.displayManager;
 import static com.tpkarras.mirror2rearultra.DisplayActivity.mediaProjection;
 import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
-import static com.tpkarras.mirror2rearultra.QuickTileService.rearDisplayId;
 
 import android.app.Activity;
 import android.content.Context;
@@ -29,32 +28,21 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.Observable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import dalvik.system.DexClassLoader;
-
 public class Mirror extends Activity {
-    public Class<Object> subscreenManager;
-    public Constructor[] subscreenct;
-    public Object subscreenInstance;
-    public Context subscreenContext;
-    public DexClassLoader dexClassLoader;
-    public IWindowManager wm;
-    private RelativeLayout.LayoutParams lp1;
-    private Matrix matrix;
+    private IWindowManager wm;
     private TextureView textureView;
     private VirtualDisplay virtualDisplay;
-    private long timeout;
     private static int subscreenSwitch;
     private static Binder sBinder;
-    private String inputShell = new StringBuilder("input -d ").append(rearDisplayId.get()).append(" tap 0 0").toString();
+    private static Method serviceMethod;
+    private IBinder windowBinder;
     private OrientationEventListener orientationEventListener;
 
     public static void rearScreenSwitch(boolean z){
@@ -86,8 +74,6 @@ public class Mirror extends Activity {
         try {
             Method serviceMethod = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
             IBinder serviceBinder = (IBinder) serviceMethod.invoke(null, "power");
-            IBinder windowBinder = (IBinder) serviceMethod.invoke(null, "window");
-            IWindowManager wm = IWindowManager.Stub.asInterface(windowBinder);
             serviceBinder.transact(code, parcel, parcel2, 1);
         } catch (RemoteException | ClassNotFoundException | NoSuchMethodException e) {
         } catch (InvocationTargetException e) {
@@ -101,59 +87,49 @@ public class Mirror extends Activity {
     }
 
     protected void onCreate(Bundle savedInstanceState){
-        orientationEventListener = new OrientationEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_NORMAL) {
-            @Override
-            public void onOrientationChanged(int i) {
-                try {
-                    Method serviceMethod = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
-                    IBinder windowBinder = (IBinder) serviceMethod.invoke(null, "window");
-                    IWindowManager wm = IWindowManager.Stub.asInterface(windowBinder);
-                    if(wm.getDefaultDisplayRotation() == 3){
-                        screenRotation.set(3);
-                    } else if(wm.getDefaultDisplayRotation() == 2) {
-                        screenRotation.set(2);
-                    } else if(wm.getDefaultDisplayRotation() == 1) {
-                        screenRotation.set(1);
-                    } else if(wm.getDefaultDisplayRotation() == 0) {
-                        screenRotation.set(Surface.ROTATION_0);
-                    }
-                } catch (RemoteException | ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
         try {
-            timeout = Settings.System.getLong(getContentResolver(), "subscreen_display_time");
-            subscreenSwitch = Settings.System.getInt(getContentResolver(), "subscreen_switch");
-        } catch (Settings.SettingNotFoundException e) {
+            serviceMethod = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
+            windowBinder = (IBinder) serviceMethod.invoke(null, "window");
+            wm = IWindowManager.Stub.asInterface(windowBinder);
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
-        }
-        super.onCreate(savedInstanceState);
-        if(Build.VERSION.SDK_INT < 33) {
-            dexClassLoader = new DexClassLoader("/system/app/MiSubScreenUi/MiSubScreenUi.apk", getCodeCacheDir().getAbsolutePath(), null, ClassLoader.getSystemClassLoader());
-        } else {
-            dexClassLoader = new DexClassLoader("/system/product/app/MiuiSubScreenUi/MiuiSubScreenUi.apk", getCodeCacheDir().getAbsolutePath(), null, ClassLoader.getSystemClassLoader());
-        }
-        try {
-            subscreenManager = (Class<Object>) dexClassLoader.loadClass("com.xiaomi.misubscreenui.manager.DeviceManager");
-            subscreenct = subscreenManager.getDeclaredConstructors();
-            subscreenInstance = subscreenct[0].newInstance(getApplicationContext());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-        } catch (InstantiationException e) {
+        }
+        orientationEventListener = new OrientationEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_NORMAL) {
+            @Override
+            public void onOrientationChanged(int i) {
+                try {
+                    if(wm.getDefaultDisplayRotation() == 3 && screenRotation.get() != 3){
+                        screenRotation.set(3);
+                    } else if(wm.getDefaultDisplayRotation() == 2 && screenRotation.get() != 2) {
+                        screenRotation.set(2);
+                    } else if(wm.getDefaultDisplayRotation() == 1 && screenRotation.get() != 1) {
+                        screenRotation.set(1);
+                    } else if(wm.getDefaultDisplayRotation() == 0 && screenRotation.get() != 0) {
+                        screenRotation.set(Surface.ROTATION_0);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        try {
+            subscreenSwitch = Settings.System.getInt(getContentResolver(), "subscreen_switch");
+        } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
         }
+        super.onCreate(savedInstanceState);
         SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
         Sensor screenDown = sensorManager.getDefaultSensor(33171037);
         SensorEventListener sensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
                 rearScreenSwitch(true);
-                //subscreenManager.getMethod("wakeupScreen").invoke(subscreenInstance);
             }
 
             @Override
@@ -165,16 +141,20 @@ public class Mirror extends Activity {
         Window window = getWindow();
         Matrix matrix = new Matrix();
         if (Build.VERSION.SDK_INT < 33) {
-        if(screenRotation.get() == 0 || screenRotation.get() == 2) {
-                virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                        126, 294, 290,
-                        displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                        null, null, null);
-            } else if (screenRotation.get() == 3 || screenRotation.get() == 1) {
-                virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                        294, 126, 290,
-                        displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                        null, null, null);
+            try {
+                if(wm.getDefaultDisplayRotation() == 0 || wm.getDefaultDisplayRotation() == 2) {
+                        virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
+                                126, 294, 290,
+                                displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                                null, null, null);
+                    } else if (wm.getDefaultDisplayRotation() == 3 || wm.getDefaultDisplayRotation() == 1) {
+                        virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
+                                294, 126, 290,
+                                displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                                null, null, null);
+                    }
+            } catch (RemoteException e) {
+                e.printStackTrace();
             }
         } else {
             virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
@@ -193,37 +173,48 @@ public class Mirror extends Activity {
             public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture, int i, int i1) {
                 Surface surface = new Surface(surfaceTexture);
                 virtualDisplay.setSurface(surface);
-                if (screenRotation.get() == 0) {
-                    matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                    textureView.setScaleY(1);
-                    textureView.setScaleX(-1);
-                    if(Build.VERSION.SDK_INT < 33) {
-                        matrix.postTranslate(168, 0);
-                    } else {
-                        matrix.postTranslate(84, 0);
+                try {
+                    if (wm.getDefaultDisplayRotation() == 0) {
+                        matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                        textureView.setScaleY(1);
+                        textureView.setScaleX(-1);
+                        if(Build.VERSION.SDK_INT < 33) {
+                            matrix.postTranslate(168, 0);
+                        } else {
+                            matrix.postTranslate(84, 0);
+                        }
+                        screenRotation.set(Surface.ROTATION_0);
+                    } else if (wm.getDefaultDisplayRotation() == 3) {
+                        matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                        textureView.setScaleX(1);
+                        textureView.setScaleY(-1);
+                        if(Build.VERSION.SDK_INT < 33) {
+                            matrix.postTranslate(-168, 0);
+                        } else {
+                            matrix.postTranslate(-84, 0);
+                        }
+                        screenRotation.set(3);
+                    } else if (wm.getDefaultDisplayRotation() == 1) {
+                        matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                        textureView.setScaleY(-1);
+                        textureView.setScaleX(1);
+                        if(Build.VERSION.SDK_INT >= 33) {
+                            matrix.postTranslate(-84, 0);
+                        }
+                        screenRotation.set(1);
+                    } else if (wm.getDefaultDisplayRotation() == 2) {
+                        matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                        textureView.setScaleY(-1);
+                        textureView.setScaleX(1);
+                        if(Build.VERSION.SDK_INT < 33) {
+                            matrix.postTranslate(-168, 0);
+                        } else {
+                            matrix.postTranslate(-84, 0);
+                        }
+                        screenRotation.set(2);
                     }
-                } else if (screenRotation.get() == 3) {
-                    matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                    textureView.setScaleX(1);
-                    textureView.setScaleY(-1);
-                    if(Build.VERSION.SDK_INT < 33) {
-                        matrix.postTranslate(-168, 0);
-                    } else {
-                        matrix.postTranslate(-84, 0);
-                    }
-                } else if (screenRotation.get() == 1) {
-                    matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                    textureView.setScaleY(-1);
-                    textureView.setScaleX(1);
-                } else if (screenRotation.get() == 2) {
-                    matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                    textureView.setScaleY(-1);
-                    textureView.setScaleX(1);
-                    if(Build.VERSION.SDK_INT < 33) {
-                        matrix.postTranslate(-168, 0);
-                    } else {
-                        matrix.postTranslate(-84, 0);
-                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
                 }
                 textureView.setTransform(matrix);
                 screenRotation.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {

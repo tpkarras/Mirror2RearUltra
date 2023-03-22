@@ -27,6 +27,7 @@ public class DisplayActivity extends AppCompatActivity {
    public static MediaProjection mediaProjection;
    private ActivityOptions activityOptions;
    private Activity activity;
+   public static ActivityResultLauncher<Intent> resultLauncher;
    public static Context rearDisplay;
    public static DisplayManager displayManager;
    public static MediaProjectionManager mediaProjectionManager;
@@ -41,10 +42,9 @@ public class DisplayActivity extends AppCompatActivity {
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
-      ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
+      resultLauncher = registerForActivityResult(
               new ActivityResultContracts.StartActivityForResult(),
               new ActivityResultCallback<ActivityResult>() {
-
                  @Override
                  public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() != 0) {
@@ -77,8 +77,6 @@ public class DisplayActivity extends AppCompatActivity {
             if (mirrorSwitch.get() == 1) {
                Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
                startService(foreground);
-               mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-               resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent());
             } else {
                mirroring.set(0);
                Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
@@ -87,8 +85,8 @@ public class DisplayActivity extends AppCompatActivity {
             }
       } else {
          new AlertDialog.Builder(this)
-                 .setMessage("The device you're using is not a Mi 11 Ultra.")
-                 .setPositiveButton("OK", null)
+                 .setMessage(R.string.incompatible)
+                 .setPositiveButton(android.R.string.ok, null)
                  .create()
                  .show();
          mirrorSwitch.set(0);

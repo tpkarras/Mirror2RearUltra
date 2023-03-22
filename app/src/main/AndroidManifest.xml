@@ -40,11 +40,6 @@
             android:exported="true"
             android:resizeableActivity="false"
             android:theme="@style/Theme.Mirror2RearUltra">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".Mirror"
