@@ -2,10 +2,7 @@ package com.tpkarras.mirror2rearultra;
 
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirrorSwitch;
 import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
-import static com.tpkarras.mirror2rearultra.QuickTileService.rearDisplayId;
 
-import android.app.Activity;
-import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +11,6 @@ import android.hardware.display.DisplayManager;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
-import android.view.Display;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -25,10 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class DisplayActivity extends AppCompatActivity {
 
    public static MediaProjection mediaProjection;
-   private ActivityOptions activityOptions;
-   private Activity activity;
    public static ActivityResultLauncher<Intent> resultLauncher;
-   public static Context rearDisplay;
    public static DisplayManager displayManager;
    public static MediaProjectionManager mediaProjectionManager;
    public static boolean isAppInstalled(Context context, String packageName) {
@@ -50,18 +43,7 @@ public class DisplayActivity extends AppCompatActivity {
                     if (result.getResultCode() != 0) {
                        mirroring.set(1);
                        mediaProjection = mediaProjectionManager.getMediaProjection(result.getResultCode(), result.getData());
-                       DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
-                       Display[] displays = displayManager.getDisplays();
-                       rearDisplayId.set(displays[1].getDisplayId());
-                       rearDisplay = createDisplayContext(displayManager.getDisplay(rearDisplayId.get()));
-                       activityOptions = activityOptions.makeBasic();
-                       activityOptions.setLaunchDisplayId(rearDisplayId.get());
-                       Intent intent = new Intent(rearDisplay, Mirror.class);
-                       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                       startActivity(
-                               intent,
-                               activityOptions.toBundle()
-                       );
+                       displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
                        finish();
                     } else {
                        mirrorSwitch.set(0);
