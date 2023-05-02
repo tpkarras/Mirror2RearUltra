@@ -140,28 +140,7 @@ public class Mirror extends Activity {
             sensorManager.registerListener(sensorEventListener, screenDown, 0);
         Window window = getWindow();
         Matrix matrix = new Matrix();
-        if (Build.VERSION.SDK_INT < 33) {
-            try {
-                if(wm.getDefaultDisplayRotation() == 0 || wm.getDefaultDisplayRotation() == 2) {
-                        virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                                126, 294, 290,
-                                displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                                null, null, null);
-                    } else if (wm.getDefaultDisplayRotation() == 3 || wm.getDefaultDisplayRotation() == 1) {
-                        virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                                294, 126, 290,
-                                displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                                null, null, null);
-                    }
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        } else {
-            virtualDisplay = mediaProjection.createVirtualDisplay("Mirror",
-                    294, 294, 290,
-                    displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                    null, null, null);
-        }
+        virtualDisplay = mediaProjection.createVirtualDisplay("Mirror", 294, 294, 290, displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, null, null, null);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
@@ -178,39 +157,25 @@ public class Mirror extends Activity {
                         matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
                         textureView.setScaleY(1);
                         textureView.setScaleX(-1);
-                        if(Build.VERSION.SDK_INT < 33) {
-                            matrix.postTranslate(168, 0);
-                        } else {
-                            matrix.postTranslate(84, 0);
-                        }
+                        matrix.postTranslate(84, 0);
                         screenRotation.set(Surface.ROTATION_0);
                     } else if (wm.getDefaultDisplayRotation() == 3) {
                         matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
                         textureView.setScaleX(1);
                         textureView.setScaleY(-1);
-                        if(Build.VERSION.SDK_INT < 33) {
-                            matrix.postTranslate(-168, 0);
-                        } else {
-                            matrix.postTranslate(-84, 0);
-                        }
+                        matrix.postTranslate(-84, 0);
                         screenRotation.set(3);
                     } else if (wm.getDefaultDisplayRotation() == 1) {
                         matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
                         textureView.setScaleY(-1);
                         textureView.setScaleX(1);
-                        if(Build.VERSION.SDK_INT >= 33) {
-                            matrix.postTranslate(-84, 0);
-                        }
+                        matrix.postTranslate(-84, 0);
                         screenRotation.set(1);
                     } else if (wm.getDefaultDisplayRotation() == 2) {
                         matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
                         textureView.setScaleY(-1);
                         textureView.setScaleX(1);
-                        if(Build.VERSION.SDK_INT < 33) {
-                            matrix.postTranslate(-168, 0);
-                        } else {
-                            matrix.postTranslate(-84, 0);
-                        }
+                        matrix.postTranslate(-84, 0);
                         screenRotation.set(2);
                     }
                 } catch (RemoteException e) {
@@ -221,51 +186,25 @@ public class Mirror extends Activity {
                     @Override
                     public void onPropertyChanged(Observable observable, int i) {
                         if (screenRotation.get() == 0) {
-                            if (Build.VERSION.SDK_INT < 33) {
-                                virtualDisplay.resize(126, 294, 290);
-                            }
                             matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
                             textureView.setScaleY(1);
                             textureView.setScaleX(-1);
-                            if(Build.VERSION.SDK_INT < 33) {
-                                matrix.postTranslate(168, 0);
-                            } else {
-                                matrix.postTranslate(84, 0);
-                            }
+                            matrix.postTranslate(84, 0);
                         } else if (screenRotation.get() == 3) {
-                            if (Build.VERSION.SDK_INT < 33) {
-                                virtualDisplay.resize(294, 126, 290);
-                            }
                             matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
                             textureView.setScaleX(1);
                             textureView.setScaleY(-1);
-                            if(Build.VERSION.SDK_INT < 33) {
-                                matrix.postTranslate(-168, 0);
-                            } else {
-                                matrix.postTranslate(-84, 0);
-                            }
+                            matrix.postTranslate(-84, 0);
                         } else if (screenRotation.get() == 1) {
-                            if (Build.VERSION.SDK_INT < 33) {
-                                virtualDisplay.resize(294, 126, 290);
-                            }
                             matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
                             textureView.setScaleY(-1);
                             textureView.setScaleX(1);
-                            if(Build.VERSION.SDK_INT >= 33) {
-                                matrix.postTranslate(-84, 0);
-                            }
+                            matrix.postTranslate(-84, 0);
                         } else if (screenRotation.get() == 2) {
-                            if (Build.VERSION.SDK_INT < 33) {
-                                virtualDisplay.resize(126, 294, 290);
-                            }
                             matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
                             textureView.setScaleY(-1);
                             textureView.setScaleX(1);
-                            if(Build.VERSION.SDK_INT < 33) {
-                                matrix.postTranslate(-168, 0);
-                            } else {
-                                matrix.postTranslate(-84, 0);
-                            }
+                            matrix.postTranslate(-84, 0);
                         }
                         textureView.setTransform(matrix);
                     }
