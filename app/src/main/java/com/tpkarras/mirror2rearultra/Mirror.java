@@ -145,7 +145,8 @@ public class Mirror extends Activity {
         layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
         window.setAttributes(layoutParams);
-        window.setContentView(R.layout.mirror_surface);
+        RelativeLayout mirrorSurface = findViewById(R.id.mirror_layout);
+        window.setContentView(mirrorSurface);
         textureView = findViewById(R.id.mirror);
         TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
             @Override
@@ -236,6 +237,7 @@ public class Mirror extends Activity {
                     sensorManager.unregisterListener(sensorEventListener);
                     orientationEventListener.disable();
                     virtualDisplay.release();
+                    mirrorSurface.setVisibility(View.GONE);
                     rearScreenSwitch(false);
                     finish();
                 }
