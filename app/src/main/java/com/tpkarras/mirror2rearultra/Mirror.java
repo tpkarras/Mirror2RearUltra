@@ -3,10 +3,12 @@ package com.tpkarras.mirror2rearultra;
 import static com.tpkarras.mirror2rearultra.DisplayActivity.displayManager;
 import static com.tpkarras.mirror2rearultra.DisplayActivity.mediaProjection;
 import static com.tpkarras.mirror2rearultra.ForegroundService.screenRotation;
-import static com.tpkarras.mirror2rearultra.QuickTileService.mirroring;
+import static com.tpkarras.mirror2rearultra.QuickTileService.mirrorSwitch;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Sensor;
@@ -15,13 +17,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.display.VirtualDisplay;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.IWindowManager;
 import android.view.OrientationEventListener;
 import android.view.Surface;
@@ -143,10 +145,9 @@ public class Mirror extends Activity {
         virtualDisplay = mediaProjection.createVirtualDisplay("Mirror", 294, 294, 290, displayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, null, null, null);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION;
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
         window.setAttributes(layoutParams);
-        RelativeLayout mirrorSurface = findViewById(R.id.mirror_layout);
-        window.setContentView(mirrorSurface);
+        window.setContentView(R.layout.mirror_surface);
         textureView = findViewById(R.id.mirror);
         TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
             @Override
@@ -156,8 +157,8 @@ public class Mirror extends Activity {
                 try {
                     if (wm.getDefaultDisplayRotation() == 0) {
                         matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                        textureView.setScaleY(1);
                         textureView.setScaleX(-1);
+                        textureView.setScaleY(1);
                         matrix.postTranslate(84, 0);
                         screenRotation.set(Surface.ROTATION_0);
                     } else if (wm.getDefaultDisplayRotation() == 3) {
@@ -168,15 +169,15 @@ public class Mirror extends Activity {
                         screenRotation.set(3);
                     } else if (wm.getDefaultDisplayRotation() == 1) {
                         matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                        textureView.setScaleY(-1);
                         textureView.setScaleX(1);
+                        textureView.setScaleY(-1);
                         matrix.postTranslate(-84, 0);
                         screenRotation.set(1);
                     } else if (wm.getDefaultDisplayRotation() == 2) {
                         matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                        textureView.setScaleY(-1);
-                        textureView.setScaleX(1);
-                        matrix.postTranslate(-84, 0);
+                        textureView.setScaleX(-1);
+                        textureView.setScaleY(1);
+                        matrix.postTranslate(84, 0);
                         screenRotation.set(2);
                     }
                 } catch (RemoteException e) {
@@ -188,8 +189,8 @@ public class Mirror extends Activity {
                     public void onPropertyChanged(Observable observable, int i) {
                         if (screenRotation.get() == 0) {
                             matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                            textureView.setScaleY(1);
                             textureView.setScaleX(-1);
+                            textureView.setScaleY(1);
                             matrix.postTranslate(84, 0);
                         } else if (screenRotation.get() == 3) {
                             matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
@@ -198,14 +199,14 @@ public class Mirror extends Activity {
                             matrix.postTranslate(-84, 0);
                         } else if (screenRotation.get() == 1) {
                             matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                            textureView.setScaleY(-1);
                             textureView.setScaleX(1);
+                            textureView.setScaleY(-1);
                             matrix.postTranslate(-84, 0);
                         } else if (screenRotation.get() == 2) {
                             matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
-                            textureView.setScaleY(-1);
-                            textureView.setScaleX(1);
-                            matrix.postTranslate(-84, 0);
+                            textureView.setScaleX(-1);
+                            textureView.setScaleY(1);
+                            matrix.postTranslate(84, 0);
                         }
                         textureView.setTransform(matrix);
                     }
@@ -219,6 +220,16 @@ public class Mirror extends Activity {
 
             @Override
             public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surfaceTexture) {
+                Log.d("Test", "Destroying");
+                sensorManager.unregisterListener(sensorEventListener);
+                orientationEventListener.disable();
+                virtualDisplay.release();
+                if(subscreenSwitch == 1) {
+                    Intent intent = new Intent();
+                    intent.setComponent(ComponentName.createRelative("com.xiaomi.misubscreenui", ".SubScreenMainActivity"));
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                    startActivity(intent);
+                }
                 return false;
             }
 
@@ -230,16 +241,12 @@ public class Mirror extends Activity {
         textureView.setSurfaceTextureListener(surfaceTextureListener);
         rearScreenSwitch(true);
         orientationEventListener.enable();
-        mirroring.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+        mirrorSwitch.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
-                if (mirroring.get() == 0) {
-                    sensorManager.unregisterListener(sensorEventListener);
-                    orientationEventListener.disable();
-                    virtualDisplay.release();
-                    mirrorSurface.setVisibility(View.GONE);
+                if (mirrorSwitch.get() == 0) {
                     rearScreenSwitch(false);
-                    finish();
+                    finishAffinity();
                 }
             }
         });

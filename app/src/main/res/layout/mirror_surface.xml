@@ -3,14 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mirror_layout"
     android:layout_width="294px"
-    android:layout_height="294px">
+    android:layout_height="294px"
+    android:background="@color/black">
 
     <TextureView
         android:id="@+id/mirror"
         android:layout_width="294px"
         android:layout_height="294px"
-        android:visibility="visible"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"/>
+        android:visibility="visible" />
 
 </RelativeLayout>

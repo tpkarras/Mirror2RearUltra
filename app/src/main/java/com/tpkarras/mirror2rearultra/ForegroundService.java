@@ -1,11 +1,8 @@
 package com.tpkarras.mirror2rearultra;
 
-import static com.tpkarras.mirror2rearultra.DisplayActivity.displayManager;
 import static com.tpkarras.mirror2rearultra.DisplayActivity.mediaProjectionManager;
 import static com.tpkarras.mirror2rearultra.DisplayActivity.resultLauncher;
-import static com.tpkarras.mirror2rearultra.QuickTileService.rearDisplayId;
 
-import android.app.ActivityOptions;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,7 +12,6 @@ import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.IBinder;
-import android.view.Display;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -25,8 +21,6 @@ import androidx.databinding.ObservableInt;
 public class ForegroundService extends Service {
 
     private static final int ID_SERVICE = 101;
-    private ActivityOptions activityOptions;
-    public static Context rearDisplay;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -57,17 +51,6 @@ public class ForegroundService extends Service {
         startForeground(ID_SERVICE, notification);
         mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent());
-        Display[] displays = displayManager.getDisplays();
-        rearDisplayId.set(displays[1].getDisplayId());
-        rearDisplay = createDisplayContext(displayManager.getDisplay(rearDisplayId.get()));
-        activityOptions = activityOptions.makeBasic();
-        activityOptions.setLaunchDisplayId(rearDisplayId.get());
-        Intent intent = new Intent(rearDisplay, Mirror.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(
-                intent,
-                activityOptions.toBundle()
-        );
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

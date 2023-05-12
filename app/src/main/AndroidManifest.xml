@@ -45,8 +45,7 @@
             android:name=".Mirror"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:resizeableActivity="false"
-            android:turnScreenOn="true" >
+            android:resizeableActivity="false">
         </activity>
     </application>
 

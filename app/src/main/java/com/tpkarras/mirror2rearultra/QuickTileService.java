@@ -9,7 +9,6 @@ import androidx.databinding.ObservableInt;
 
 public class QuickTileService extends TileService {
     public static ObservableInt mirrorSwitch = new ObservableInt(0);
-    public static ObservableInt mirroring = new ObservableInt(0);
     public static ObservableInt rearDisplayId = new ObservableInt(0);
 
     @Override
@@ -21,9 +20,9 @@ public class QuickTileService extends TileService {
             tile.updateTile();
             mirrorSwitch.set(1);
         } else {
-            mirrorSwitch.set(0);
             tile.setState(Tile.STATE_INACTIVE);
             tile.updateTile();
+            mirrorSwitch.set(0);
         }
         mirrorSwitch.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
