@@ -220,7 +220,6 @@ public class Mirror extends Activity {
 
             @Override
             public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surfaceTexture) {
-                Log.d("Test", "Destroying");
                 sensorManager.unregisterListener(sensorEventListener);
                 orientationEventListener.disable();
                 virtualDisplay.release();
