@@ -93,6 +93,8 @@ public class Mirror extends Activity {
             serviceMethod = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
             windowBinder = (IBinder) serviceMethod.invoke(null, "window");
             wm = IWindowManager.Stub.asInterface(windowBinder);
+            Log.d("wm", wm.toString());
+            Log.d("wm", String.valueOf(wm.getDefaultDisplayRotation()));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -100,6 +102,8 @@ public class Mirror extends Activity {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
         orientationEventListener = new OrientationEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_NORMAL) {
@@ -168,13 +172,13 @@ public class Mirror extends Activity {
                         matrix.postTranslate(-84, 0);
                         screenRotation.set(3);
                     } else if (wm.getDefaultDisplayRotation() == 1) {
-                        matrix.setRotate(-90, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                        matrix.setRotate(90, textureView.getWidth() / 2, textureView.getHeight() / 2);
                         textureView.setScaleX(1);
                         textureView.setScaleY(-1);
                         matrix.postTranslate(-84, 0);
                         screenRotation.set(1);
                     } else if (wm.getDefaultDisplayRotation() == 2) {
-                        matrix.setRotate(-180, textureView.getWidth() / 2, textureView.getHeight() / 2);
+                        matrix.setRotate(0, textureView.getWidth() / 2, textureView.getHeight() / 2);
                         textureView.setScaleX(-1);
                         textureView.setScaleY(1);
                         matrix.postTranslate(84, 0);
@@ -220,7 +224,6 @@ public class Mirror extends Activity {
 
             @Override
             public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surfaceTexture) {
-                Log.d("Test", "Destroying");
                 sensorManager.unregisterListener(sensorEventListener);
                 orientationEventListener.disable();
                 virtualDisplay.release();

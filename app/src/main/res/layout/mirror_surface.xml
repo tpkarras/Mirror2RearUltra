@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mirror_layout"
     android:layout_width="294px"
     android:layout_height="294px"
-    android:background="@color/black">
+    android:background="@android:color/transparent">
 
     <TextureView
         android:id="@+id/mirror"
@@ -12,4 +12,4 @@
         android:layout_height="294px"
         android:visibility="visible" />
 
-</RelativeLayout>
+</FrameLayout>

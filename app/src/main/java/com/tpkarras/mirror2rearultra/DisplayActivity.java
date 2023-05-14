@@ -73,6 +73,8 @@ public class DisplayActivity extends AppCompatActivity {
          Intent foreground = new Intent(getApplicationContext(), ForegroundService.class);
             if (mirrorSwitch.get() == 1) {
                startService(foreground);
+               mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+               resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent());
             } else {
                stopService(foreground);
                finish();
