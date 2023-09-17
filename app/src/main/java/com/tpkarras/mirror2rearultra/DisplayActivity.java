@@ -48,7 +48,12 @@ public class DisplayActivity extends AppCompatActivity {
                        mediaProjection = mediaProjectionManager.getMediaProjection(result.getResultCode(), result.getData());
                        displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
                        Display[] displays = displayManager.getDisplays();
-                       rearDisplayId.set(displays[1].getDisplayId());
+                       for (Display display : displays) {
+                          if(display.getName().equals("Built-in Screen") && display.getDisplayId() != 0) {
+                             rearDisplayId.set(display.getDisplayId());
+                             break;
+                          }
+                       }
                        rearDisplay = createDisplayContext(displayManager.getDisplay(rearDisplayId.get()));
                        activityOptions = activityOptions.makeBasic();
                        activityOptions.setLaunchDisplayId(rearDisplayId.get());

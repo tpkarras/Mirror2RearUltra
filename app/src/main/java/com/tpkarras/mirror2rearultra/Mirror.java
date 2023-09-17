@@ -23,7 +23,6 @@ import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.IWindowManager;
 import android.view.OrientationEventListener;
 import android.view.Surface;
@@ -61,17 +60,9 @@ public class Mirror extends Activity {
             parcel.writeInt(1);
             parcel.writeString("CAMERA_CALL");
         } else {
-            if(subscreenSwitch == 1) {
                 code = 16777211;
                 parcel.writeLong(SystemClock.uptimeMillis());
                 parcel.writeString("CAMERA_CALL");
-            } else {
-                code = 16777208;
-                if (sBinder != null) {
-                    parcel.writeStrongBinder(sBinder);
-                }
-                parcel.writeInt(1);
-            }
         }
         try {
             Method serviceMethod = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
@@ -93,8 +84,6 @@ public class Mirror extends Activity {
             serviceMethod = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
             windowBinder = (IBinder) serviceMethod.invoke(null, "window");
             wm = IWindowManager.Stub.asInterface(windowBinder);
-            Log.d("wm", wm.toString());
-            Log.d("wm", String.valueOf(wm.getDefaultDisplayRotation()));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -102,8 +91,6 @@ public class Mirror extends Activity {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (RemoteException e) {
             e.printStackTrace();
         }
         orientationEventListener = new OrientationEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_NORMAL) {
