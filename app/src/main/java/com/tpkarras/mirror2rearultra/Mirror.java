@@ -24,7 +24,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.IWindowManager;
-import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.Window;
@@ -44,7 +43,6 @@ public class Mirror extends Activity {
     private static Binder sBinder;
     private static Method serviceMethod;
     private IBinder windowBinder;
-    private OrientationEventListener orientationEventListener;
 
     public static void rearScreenSwitch(boolean z){
         Parcel parcel = Parcel.obtain();
@@ -93,24 +91,30 @@ public class Mirror extends Activity {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        orientationEventListener = new OrientationEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_NORMAL) {
+        Runnable rotationListener = new Runnable() {
             @Override
-            public void onOrientationChanged(int i) {
+            public void run() {
                 try {
-                    if(wm.getDefaultDisplayRotation() == 3 && screenRotation.get() != 3){
-                        screenRotation.set(3);
-                    } else if(wm.getDefaultDisplayRotation() == 2 && screenRotation.get() != 2) {
-                        screenRotation.set(2);
-                    } else if(wm.getDefaultDisplayRotation() == 1 && screenRotation.get() != 1) {
-                        screenRotation.set(1);
-                    } else if(wm.getDefaultDisplayRotation() == 0 && screenRotation.get() != 0) {
-                        screenRotation.set(Surface.ROTATION_0);
+                    while (mirrorSwitch.get() == 1) {
+                        if (wm.getDefaultDisplayRotation() == 3 && screenRotation.get() != 3) {
+                            screenRotation.set(3);
+                        } else if (wm.getDefaultDisplayRotation() == 2 && screenRotation.get() != 2) {
+                            screenRotation.set(2);
+                        } else if (wm.getDefaultDisplayRotation() == 1 && screenRotation.get() != 1) {
+                            screenRotation.set(1);
+                        } else if (wm.getDefaultDisplayRotation() == 0 && screenRotation.get() != 0) {
+                            screenRotation.set(Surface.ROTATION_0);
+                        }
+                        Thread.sleep(250);
                     }
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         };
+        Thread rotationThread = new Thread(rotationListener);
         try {
             subscreenSwitch = Settings.System.getInt(getContentResolver(), "subscreen_switch");
         } catch (Settings.SettingNotFoundException e) {
@@ -212,7 +216,6 @@ public class Mirror extends Activity {
             @Override
             public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surfaceTexture) {
                 sensorManager.unregisterListener(sensorEventListener);
-                orientationEventListener.disable();
                 virtualDisplay.release();
                 if(subscreenSwitch == 1) {
                     Intent intent = new Intent();
@@ -230,7 +233,7 @@ public class Mirror extends Activity {
         };
         textureView.setSurfaceTextureListener(surfaceTextureListener);
         rearScreenSwitch(true);
-        orientationEventListener.enable();
+        rotationThread.start();
         mirrorSwitch.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
