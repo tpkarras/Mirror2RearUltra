@@ -40,7 +40,6 @@ public class Mirror extends Activity {
     private TextureView textureView;
     private VirtualDisplay virtualDisplay;
     private static int subscreenSwitch;
-    private static Binder sBinder;
     private static Method serviceMethod;
     private IBinder windowBinder;
 
@@ -52,7 +51,6 @@ public class Mirror extends Activity {
         if(z) {
             code = 16777210;
             Binder binder = new Binder();
-            sBinder = binder;
             parcel.writeStrongBinder(binder);
             parcel.writeLong(SystemClock.uptimeMillis());
             parcel.writeInt(1);
@@ -122,7 +120,13 @@ public class Mirror extends Activity {
         }
         super.onCreate(savedInstanceState);
         SensorManager sensorManager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
-        Sensor screenDown = sensorManager.getDefaultSensor(33171037);
+        Sensor screenDown = null;
+        for (Sensor sensor: sensorManager.getSensorList(Sensor.TYPE_ALL)){
+            if(sensor.getName().matches("screen_down.*") && sensor.isWakeUpSensor() == false) {
+                screenDown = sensor;
+                break;
+            }
+        }
         SensorEventListener sensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
