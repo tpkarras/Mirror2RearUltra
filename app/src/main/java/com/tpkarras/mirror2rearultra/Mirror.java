@@ -224,7 +224,7 @@ public class Mirror extends Activity {
                 if(subscreenSwitch == 1) {
                     Intent intent = new Intent();
                     intent.setComponent(ComponentName.createRelative("com.xiaomi.misubscreenui", ".SubScreenMainActivity"));
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT|Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
                     startActivity(intent);
                 }
                 return false;

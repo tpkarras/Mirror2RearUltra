@@ -27,7 +27,6 @@ public class DisplayActivity extends AppCompatActivity {
    public static DisplayManager displayManager;
    public static MediaProjectionManager mediaProjectionManager;
    private ActivityOptions activityOptions;
-   public static Context rearDisplay;
    public static boolean isAppInstalled(Context context, String packageName) {
       try {
          context.getPackageManager().getApplicationInfo(packageName, 0);
@@ -54,11 +53,10 @@ public class DisplayActivity extends AppCompatActivity {
                              break;
                           }
                        }
-                       rearDisplay = createDisplayContext(displayManager.getDisplay(rearDisplayId.get()));
                        activityOptions = activityOptions.makeBasic();
                        activityOptions.setLaunchDisplayId(rearDisplayId.get());
-                       Intent intent = new Intent(rearDisplay, Mirror.class);
-                       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                       Intent intent = new Intent(getApplicationContext(), Mirror.class);
+                       intent.setFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT | Intent.FLAG_ACTIVITY_NEW_TASK);
                        startActivity(
                                intent,
                                activityOptions.toBundle()
