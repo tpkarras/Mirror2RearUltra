@@ -1,3 +1,5 @@
+**NOTE:** I am looking for someone to take over this repository, my Mi 11 Ultra has officially died and I can no longer do any work on this due to me having a 14 Ultra. Anyone who's interested can feel free to contact me. Thank you.
+
 ![Mirror2RearUltra](https://i.imgur.com/wpv8kID.png)
 # Mirror2RearUltra
 Simplistic rear screen mirroring plugin/app for Xiaomi Mi 11 Ultra. Does nothing more other than mirror the front screen to your rear one.
